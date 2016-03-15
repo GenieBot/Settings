@@ -28,7 +28,7 @@ public class PrefixCommand extends Command {
         String defaultPrefix = client.getDefaultPrefix();
 
         if (args.length == 0) {
-            request.reply("Usage: prefix [prefix]\r\nPrefix must be longer than 0 and shorter than 21.");
+            request.reply("Usage: prefix [prefix]" + System.lineSeparator() + "Prefix must be longer than 0 and shorter than 21.");
             return;
         }
 
