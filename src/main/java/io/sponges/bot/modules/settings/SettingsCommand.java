@@ -3,6 +3,7 @@ package io.sponges.bot.modules.settings;
 import io.sponges.bot.api.cmd.Command;
 import io.sponges.bot.api.cmd.CommandRequest;
 import io.sponges.bot.api.entities.Network;
+import io.sponges.bot.api.entities.User;
 import io.sponges.bot.api.entities.channel.Channel;
 import io.sponges.bot.api.storage.data.ChannelData;
 import io.sponges.bot.api.storage.data.NetworkData;
@@ -21,6 +22,12 @@ public class SettingsCommand extends Command {
         NetworkData networkData = network.getData();
         Channel channel = request.getChannel();
         ChannelData channelData = channel.getData();
+        User user = request.getUser();
+
+        if (!user.hasPermission("settings.prefix")) {
+            request.reply("You do not have permission to do that! Required permission node: \"settings.list\"");
+            return;
+        }
 
         if (args.length == 0) {
             StringBuilder builder = new StringBuilder(System.lineSeparator() + "Network settings:");
