@@ -7,9 +7,8 @@ import io.sponges.bot.api.entities.Network;
 import io.sponges.bot.api.entities.User;
 import io.sponges.bot.api.entities.channel.Channel;
 import io.sponges.bot.api.module.Module;
+import io.sponges.bot.api.storage.DataObject;
 import io.sponges.bot.api.storage.Storage;
-import io.sponges.bot.api.storage.data.Data;
-import io.sponges.bot.api.storage.data.Setting;
 import org.apache.commons.lang3.StringEscapeUtils;
 
 public class PrefixCommand extends Command {
@@ -19,6 +18,7 @@ public class PrefixCommand extends Command {
     public PrefixCommand(Module module) {
         super("sets the command prefix", "prefix", "trigger");
         this.module = module;
+        super.registerPermission("settings.prefix");
     }
 
     @Override
@@ -29,18 +29,15 @@ public class PrefixCommand extends Command {
         Channel channel = request.getChannel();
         String defaultPrefix = client.getDefaultPrefix();
         User user = request.getUser();
-
         if (!user.hasPermission("settings.prefix")) {
             request.reply("You do not have permission to do that! Required permission node: \"settings.prefix\"");
             return;
         }
-
         if (args.length < 2) {
             request.reply("Usage: prefix [network/channel] [prefix]" + System.lineSeparator() + "Prefix must be longer than 0 and shorter than 21.");
             return;
         }
-
-        Data data;
+        DataObject data;
         if (args[0].equalsIgnoreCase("network") || args[0].equalsIgnoreCase("net")) {
             data = network.getData();
         } else if (args[0].equalsIgnoreCase("channel") || args[0].equalsIgnoreCase("chan")) {
@@ -49,18 +46,16 @@ public class PrefixCommand extends Command {
             request.reply("Usage: prefix [network/channel] [prefix]" + System.lineSeparator() + "Prefix must be longer than 0 and shorter than 21.");
             return;
         }
-
         String prefix = args[1];
         prefix = StringEscapeUtils.escapeJson(prefix);
         if (prefix.length() < 1 || prefix.length() > 20) {
             request.reply("Invalid prefix!");
             return;
         }
-
-        data.set(Setting.PREFIX_KEY, prefix);
-        storage.save(channel, response -> {
-            request.reply("Success: \"" + response + "\" - to reset the prefix back to \"" + defaultPrefix + "\" " +
-                    "use \"-sbprefixreset\"");
-        });
+        if (prefix.equalsIgnoreCase("reset")) {
+            prefix = defaultPrefix;
+        }
+        data.set(storage, "prefix", prefix);
+        request.reply("Done fam.");
     }
 }

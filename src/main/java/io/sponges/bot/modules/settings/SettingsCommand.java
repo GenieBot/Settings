@@ -5,43 +5,38 @@ import io.sponges.bot.api.cmd.CommandRequest;
 import io.sponges.bot.api.entities.Network;
 import io.sponges.bot.api.entities.User;
 import io.sponges.bot.api.entities.channel.Channel;
-import io.sponges.bot.api.storage.data.ChannelData;
-import io.sponges.bot.api.storage.data.NetworkData;
-
-import java.util.Map;
+import io.sponges.bot.api.storage.DataObject;
+import io.sponges.bot.api.storage.Storage;
+import org.json.JSONObject;
 
 public class SettingsCommand extends Command {
 
-    public SettingsCommand() {
+    private final Storage storage;
+
+    public SettingsCommand(Storage storage) {
         super("settings management", "settings", "setting", "config", "set");
+        this.storage = storage;
+        super.registerPermission("settings.prefix");
     }
 
     @Override
     public void onCommand(CommandRequest request, String[] args) {
         Network network = request.getNetwork();
-        NetworkData networkData = network.getData();
+        DataObject networkData = network.getData();
         Channel channel = request.getChannel();
-        ChannelData channelData = channel.getData();
+        DataObject channelData = channel.getData();
         User user = request.getUser();
-
-        if (!user.hasPermission("settings.prefix")) {
+        if (!user.hasPermission("settings.list")) {
             request.reply("You do not have permission to do that! Required permission node: \"settings.list\"");
             return;
         }
-
         if (args.length == 0) {
-            StringBuilder builder = new StringBuilder(System.lineSeparator() + "Network settings:");
-            for (Map.Entry<String, String> entry : networkData.getSettings().entrySet()) {
-                builder.append(System.lineSeparator()).append("  ").append(entry.getKey()).append(": ")
-                        .append(entry.getValue());
-            }
-            builder.append(System.lineSeparator()).append(System.lineSeparator()).append("Channel settings:");
-            for (Map.Entry<String, String> entry : channelData.getSettings().entrySet()) {
-                builder.append(System.lineSeparator()).append("  ").append(entry.getKey()).append(": ")
-                        .append(entry.getValue());
-            }
-
-            request.reply(builder.toString());
+            request.reply("Network settings:\n" + prettyPrint(networkData)
+                    + "\nChannel settings:\n" + prettyPrint(channelData));
         }
+    }
+
+    private String prettyPrint(DataObject dataObject) {
+        return new JSONObject(storage.serialize(dataObject)).toString(4);
     }
 }
