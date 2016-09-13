@@ -16,7 +16,6 @@ public class SettingsCommand extends Command {
     public SettingsCommand(Storage storage) {
         super("settings management", "settings", "setting", "config", "set");
         this.storage = storage;
-        super.registerPermission("settings.prefix");
     }
 
     @Override

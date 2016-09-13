@@ -1,11 +1,11 @@
 package io.sponges.bot.modules.settings;
 
 import io.sponges.bot.api.entities.Client;
-import io.sponges.bot.api.entities.Message;
 import io.sponges.bot.api.entities.Network;
 import io.sponges.bot.api.entities.User;
 import io.sponges.bot.api.entities.channel.Channel;
-import io.sponges.bot.api.event.events.user.UserChatEvent;
+import io.sponges.bot.api.entities.message.ReceivedMessage;
+import io.sponges.bot.api.event.events.message.MessageReceivedEvent;
 import io.sponges.bot.api.module.Module;
 import io.sponges.bot.api.storage.DataObject;
 
@@ -20,14 +20,14 @@ public class Settings extends Module {
         getCommandManager().registerCommand(this, new SettingsCommand(getStorage()));
         getCommandManager().registerCommand(this, new PrefixCommand(this));
 
-        getEventManager().register(this, UserChatEvent.class, userChatEvent -> {
-            Message message = userChatEvent.getMessage();
+        getEventManager().register(this, MessageReceivedEvent.class, event -> {
+            ReceivedMessage message = event.getMessage();
             String content = message.getContent();
-            Client client = userChatEvent.getClient();
+            Client client = event.getClient();
             String defaultPrefix = client.getDefaultPrefix();
-            Network network = userChatEvent.getNetwork();
-            Channel channel = userChatEvent.getChannel();
-            User user = userChatEvent.getUser();
+            Network network = event.getNetwork();
+            Channel channel = event.getChannel();
+            User user = event.getUser();
             if (content.equalsIgnoreCase("-sbprefixreset") || content.equalsIgnoreCase("-sbresetprefix")) {
                 if (!user.hasPermission("settings.prefix")) {
                     channel.sendChatMessage("You do not have permission to do that! Required permission node: \"settings.prefix\"");

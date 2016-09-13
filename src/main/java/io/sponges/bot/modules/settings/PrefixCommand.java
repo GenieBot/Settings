@@ -18,7 +18,6 @@ public class PrefixCommand extends Command {
     public PrefixCommand(Module module) {
         super("sets the command prefix", "prefix", "trigger");
         this.module = module;
-        super.registerPermission("settings.prefix");
     }
 
     @Override
